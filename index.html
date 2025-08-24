@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>名字男娘指数解析器</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎭</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/pinyin@4.0.0/lib/umd/pinyin.js"></script>
+    <script src="https://unpkg.com/wanakana@5.3.1/wanakana.min.js"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .rainbow-text {
+            background: linear-gradient(90deg, #ef4444, #f97316, #eab308, #84cc16, #22c55e, #14b8a6, #06b6d4, #3b82f6, #8b5cf6, #d946ef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .progress-bar-inner {
+            transition: width 0.2s linear, background-color 0.2s linear;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .shake { animation: shake 0.5s; }
+        @keyframes pop-in {
+            0% { transform: scale(0.8); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        .pop-in { animation: pop-in 0.5s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md mx-auto bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
+        <!-- Header -->
+        <div class="text-center">
+            <h1 class="text-3xl font-bold rainbow-text">名字男娘指数解析器</h1>
+            <p class="text-gray-400 mt-2">输入一个名字，看看“科学”的男娘指数！</p>
+            <p class="text-xs text-gray-500 mt-1">（纯属娱乐，请勿当真）</p>
+        </div>
+        <!-- Input Form -->
+        <div class="space-y-4">
+            <input type="text" id="nameInput" placeholder="输入名字或网名" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-purple-500">
+            <button id="calculateBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition transform hover:scale-105 active:scale-95">
+                <span id="btnText">开始计算</span>
+                <span id="btnSpinner" class="hidden animate-spin">◐</span>
+            </button>
+                         <div class="flex items-center space-x-2">
+                 <input type="checkbox" id="deepAnalysis" class="hidden">
+                 <label for="deepAnalysis" class="flex items-center space-x-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-lg cursor-pointer transition-colors duration-200">
+                     <svg class="w-5 h5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                     </svg>
+                     <span class="text-sm text-gray-300">开启深度分析 (Gemini)</span>
+                 </label>
+             </div>
+             
+                           <!-- 服务条款提示 -->
+              <div id="termsNotice" class="hidden text-xs text-gray-400 text-center px-3 py-2 bg-gray-800 rounded-lg border border-gray-700">
+                  <svg class="w-4 h-4 inline-block mr-1 text-yellow-500" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  </svg>
+                  使用深度分析则代表您同意我们的<a href="/terms.html" target="_blank" class="text-purple-400 hover:text-purple-300 underline decoration-dotted">服务条款</a>
+              </div>
+             
+             <!-- Turnstile验证组件 -->
+             <div id="turnstileContainer" class="hidden">
+                 <div class="text-center">
+                     <p class="text-sm text-gray-400 mb-2">请求次数过多，请完成人机验证</p>
+                     <div class="flex justify-center">
+                         <div class="cf-turnstile" data-sitekey="0x4AAAAAABt7oH4As3R0PYqj"></div>
+                     </div>
+                 </div>
+             </div>
+        </div>
+        <!-- Result -->
+        <div id="resultSection" class="hidden pt-6 space-y-4 text-center">
+            <h2 class="text-xl font-semibold text-gray-300">计算结果 for "<span id="resultName" class="font-bold text-purple-400"></span>"</h2>
+            <div class="relative w-full h-8 bg-gray-700 rounded-full overflow-hidden border-2 border-gray-600">
+                <div id="progressBar" class="progress-bar-inner h-full rounded-full" style="width: 0%; background-color:#3b82f6;"></div>
+                <span id="percentageText" class="absolute inset-0 flex items-center justify-center text-sm font-bold text-white opacity-0">0%</span>
+            </div>
+            <p id="resultMessage" class="text-lg font-medium text-gray-200 h-12 flex items-center justify-center"></p>
+            <div id="deepAnalysisResult" class="hidden text-sm text-gray-300 pt-4 p-4 bg-gray-700 rounded-lg border border-gray-600"></div>
+                 </div>
+         
+         <!-- Footer with Source Code Link -->
+         <div class="mt-8 pt-6 border-t border-gray-700 text-center">
+             <a href="https://github.com/mdogwoop/femboynum" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="inline-flex items-center space-x-2 text-gray-400 hover:text-purple-400 transition-colors duration-200 text-sm">
+                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                     <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                 </svg>
+                 <span>查看源代码</span>
+             </a>
+         </div>
+     </div>
+     <script>
+        window.onload = function() {
+            const nameInput = document.getElementById('nameInput');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
+            const resultSection = document.getElementById('resultSection');
+            const resultName = document.getElementById('resultName');
+            const progressBar = document.getElementById('progressBar');
+            const percentageText = document.getElementById('percentageText');
+                         const resultMessage = document.getElementById('resultMessage');
+                         const deepAnalysisResult = document.getElementById('deepAnalysisResult');
+            const turnstileContainer = document.getElementById('turnstileContainer');
+            const termsNotice = document.getElementById('termsNotice');
+
+            function normalizeName(name) {
+                let processed = name.trim().toLowerCase();
+                if (/[一-龥]/.test(processed)) {
+                    processed = pinyin.pinyin(processed, { style: pinyin.STYLE_NORMAL }).flat().join('');
+                } else if (wanakana.isJapanese(processed)) {
+                    processed = wanakana.toRomaji(processed);
+                }
+                return processed.replace(/[^a-z0-9]/g, '');
+            }
+
+            function calculateScore(name) {
+                if (!name) return 0;
+                let sum = 0;
+                for (let i = 0; i < name.length; i++) {
+                    sum += name.charCodeAt(i) * (i + 1);
+                }
+                return sum % 101;
+            }
+
+            function getResultMessage(score) {
+                const messages = {
+                    0: ["完全没有男娘气质，纯爷们无疑！"],
+                    10: ["有点可爱直男的感觉，但离男娘还远。"],
+                    40: ["开始显露中性风格，稍微有点男娘味。"],
+                    60: ["很有潜质！化个妆就能骗过不少人。"],
+                    75: ["走在路上都可能被当妹子！男娘力爆发！"],
+                    90: ["职业男娘级别，气质拿捏得死死的。"],
+                    100: ["完美男娘！你就是伪娘界的天花板！"]
+                };
+                if (score === 0) return messages[0][0];
+                if (score <= 10) return messages[10][0];
+                if (score <= 40) return messages[40][0];
+                if (score <= 60) return messages[60][0];
+                if (score <= 75) return messages[75][0];
+                if (score <= 90) return messages[90][0];
+                return messages[100][0];
+            }
+
+            function getProgressBarColor(percentage) {
+                if (percentage < 25) return '#3b82f6'; // blue
+                if (percentage < 50) return '#8b5cf6'; // purple
+                if (percentage < 75) return '#ec4899'; // pink
+                if (percentage < 90) return '#f59e0b'; // amber
+                return '#ef4444'; // red
+            }
+
+                         async function callGeminiAnalysis(name, score) {
+                 try {
+                     // 获取Turnstile令牌
+                     const turnstileToken = turnstile.getResponse();
+                     
+                     const response = await fetch("/api/analyze", {
+                         method: "POST",
+                         headers: { "Content-Type": "application/json" },
+                         body: JSON.stringify({ name, score, turnstileToken })
+                     });
+                    
+                                         if (!response.ok) {
+                         const errorData = await response.json();
+                         console.error('API Error:', errorData);
+                         
+                         let errorMessage = `深度分析失败：${errorData.message || '请稍后再试'}`;
+                         
+                         // 如果是配置错误，提供更详细的帮助信息
+                         if (errorData.error === 'Configuration Error') {
+                             errorMessage += '\n\n🔧 解决方案：\n';
+                             if (errorData.details) {
+                                 errorMessage += errorData.details + '\n';
+                             }
+                             if (errorData.solution) {
+                                 errorMessage += errorData.solution;
+                             }
+                         }
+                         
+                                              // 如果是地理位置错误，提供特殊的提示
+                     if (errorData.error === 'Location Error') {
+                         errorMessage = `🌍 ${errorData.solution}`;
+                     }
+                     
+                     // 如果是Turnstile验证失败，显示验证组件
+                     if (errorData.error === 'Turnstile Required') {
+                         turnstileContainer.classList.remove('hidden');
+                         return `🛡️ ${errorData.message}\n\n请完成下方的人机验证后重试`;
+                     }
+                     
+                     // 如果是Turnstile令牌无效
+                     if (errorData.error === 'Turnstile Invalid') {
+                         return `❌ ${errorData.message}\n\n请重新完成验证`;
+                     }
+                     
+                     return errorMessage;
+                     }
+                    
+                    const data = await response.json();
+                    console.log('API Response Data:', data);
+                    
+                                                                  if (data.success && data.analysis) {
+                         console.log('Analysis content:', data.analysis);
+                         
+                         // 验证成功，隐藏Turnstile组件
+                         turnstileContainer.classList.add('hidden');
+                         
+                         // 根据API来源添加标识
+                         let analysisText = data.analysis;
+                         if (data.metadata && data.metadata.source) {
+                             if (data.metadata.source === 'gemini') {
+                                 if (data.metadata.model === 'gemini-2.0-flash-lite') {
+                                     analysisText = `🤖 Gemini AI 分析 (降级版)：\n\n${data.analysis}`;
+                                 } else {
+                                     analysisText = `🤖 Gemini AI 分析：\n\n${data.analysis}`;
+                                 }
+                             } else if (data.metadata.source === 'backup') {
+                                 analysisText = `🔄 备用AI 分析：\n\n${data.analysis}`;
+                             }
+                         }
+                         
+                         return analysisText;
+                         } else {
+                             console.error('Invalid response format:', data);
+                             return `深度分析生成失败：响应格式错误 (success: ${data.success}, analysis: ${!!data.analysis})`;
+                         }
+                } catch (e) {
+                    console.error('Network Error:', e);
+                    return "网络错误，深度分析失败，请稍后再试。";
+                }
+            }
+
+            function handleCalculation() {
+                const name = nameInput.value;
+                if (!name.trim()) {
+                    nameInput.classList.add('shake');
+                    setTimeout(() => nameInput.classList.remove('shake'), 500);
+                    return;
+                }
+                btnText.classList.add('hidden');
+                btnSpinner.classList.remove('hidden');
+                calculateBtn.disabled = true;
+                resultSection.classList.add('hidden');
+                deepAnalysisResult.classList.add('hidden');
+                deepAnalysisResult.textContent = "";
+
+                setTimeout(() => {
+                    const norm = normalizeName(name);
+                    const score = calculateScore(norm);
+                    displayResult(name, score);
+                    btnText.classList.remove('hidden');
+                    btnSpinner.classList.add('hidden');
+                    calculateBtn.disabled = false;
+                }, 800);
+            }
+
+            function displayResult(name, score) {
+                resultName.textContent = name;
+                resultSection.classList.remove('hidden');
+                let current = 0;
+                const interval = setInterval(() => {
+                    progressBar.style.width = current + '%';
+                    progressBar.style.backgroundColor = getProgressBarColor(current);
+                    percentageText.textContent = current + '%';
+                    percentageText.style.opacity = 1;
+                    if (current >= score) {
+                        clearInterval(interval);
+                        percentageText.classList.add('pop-in');
+                        resultMessage.textContent = getResultMessage(score);
+                        if (document.getElementById('deepAnalysis').checked) {
+                            deepAnalysisResult.classList.remove('hidden');
+                            deepAnalysisResult.textContent = "正在生成深度分析...";
+                            callGeminiAnalysis(name, score).then(text => {
+                                deepAnalysisResult.textContent = text;
+                            }).catch(error => {
+                                deepAnalysisResult.textContent = `深度分析失败: ${error}`;
+                            });
+                        } else {
+                            // 如果深度分析未开启，隐藏结果
+                            deepAnalysisResult.classList.add('hidden');
+                            deepAnalysisResult.textContent = "";
+                        }
+                    } else {
+                        current++;
+                    }
+                }, 20);
+            }
+
+            calculateBtn.addEventListener('click', handleCalculation);
+            nameInput.addEventListener('keyup', e => { if (e.key === 'Enter') handleCalculation(); });
+            
+            // 深度分析按钮的交互效果
+            const deepAnalysisCheckbox = document.getElementById('deepAnalysis');
+            const deepAnalysisLabel = document.querySelector('label[for="deepAnalysis"]');
+            
+            // 初始化按钮状态
+            updateDeepAnalysisButton();
+            
+            deepAnalysisLabel.addEventListener('click', function(e) {
+                e.preventDefault(); // 防止默认行为
+                deepAnalysisCheckbox.checked = !deepAnalysisCheckbox.checked;
+                updateDeepAnalysisButton();
+                
+                // 如果取消选中，隐藏深度分析结果和服务条款提示
+                if (!deepAnalysisCheckbox.checked) {
+                    deepAnalysisResult.classList.add('hidden');
+                    deepAnalysisResult.textContent = "";
+                    termsNotice.classList.add('hidden');
+                } else {
+                    // 如果选中，显示深度分析结果区域和服务条款提示
+                    deepAnalysisResult.classList.remove('hidden');
+                    termsNotice.classList.remove('hidden');
+                }
+            });
+            
+            function updateDeepAnalysisButton() {
+                if (deepAnalysisCheckbox.checked) {
+                    deepAnalysisLabel.classList.add('bg-purple-600', 'border-purple-500');
+                    deepAnalysisLabel.classList.remove('bg-gray-700', 'border-gray-600');
+                    deepAnalysisLabel.querySelector('span').textContent = '关闭深度分析 (Gemini)';
+                    // 显示服务条款提示
+                    termsNotice.classList.remove('hidden');
+                } else {
+                    deepAnalysisLabel.classList.remove('bg-purple-600', 'border-purple-500');
+                    deepAnalysisLabel.classList.add('bg-gray-700', 'border-gray-600');
+                    deepAnalysisLabel.querySelector('span').textContent = '开启深度分析 (Gemini)';
+                    // 隐藏服务条款提示
+                    termsNotice.classList.add('hidden');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
