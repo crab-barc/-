@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>名字男娘指数解析器</title>
+    <title>名字神权指数解析器</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎭</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/pinyin@4.0.0/lib/umd/pinyin.js"></script>
@@ -135,11 +135,11 @@
         sum += name.charCodeAt(i) * (i + 81901);
     }
     
-    // 修改算法：sum + 27 % 101
+    //sum + 61 % 101
     let score = (sum + 61) % 101;
     
-    // 保留特例：当名字是"张旭晨"的各种可能变体时强制返回100
-    const zxcVariants = ["zhangxuchen", "zhangxuchend", "zhangxu", "xuchen", "zxc"];
+    //张旭晨变体返回100
+    const zxcVariants = ["zhangxuchen", "xijinping", "zhangxu", "xuchen", "张旭晨"];
     if (zxcVariants.includes(name)) {
         score = 100;
     }
@@ -149,13 +149,13 @@
 
             function getResultMessage(score) {
                 const messages = {
-                    0: ["完全没有男娘气质，纯爷们无疑！"],
-                    10: ["有点可爱直男的感觉，但离男娘还远。"],
-                    40: ["开始显露中性风格，稍微有点男娘味。"],
-                    60: ["很有潜质！化个妆就能骗过不少人。"],
-                    75: ["走在路上都可能被当妹子！男娘力爆发！"],
-                    90: ["职业男娘级别，气质拿捏得死死的。"],
-                    100: ["完美男娘！你就是伪娘界的天花板！"]
+                    0: ["完全没有神权气质，黄驰升无疑！"],
+                    10: ["有点可爱神权的感觉，但离神权还远。"],
+                    40: ["开始显露神权风格，稍微有点神权味。"],
+                    60: ["很有权力！能神权不少人。"],
+                    75: ["走在路上都可能被当副主席！神权力爆发！"],
+                    90: ["职业神权级别，气质拿捏得死死的。"],
+                    100: ["完美神权！你就是神权界的天花板！"]
                 };
                 if (score === 0) return messages[0][0];
                 if (score <= 10) return messages[10][0];
