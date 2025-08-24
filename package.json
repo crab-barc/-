@@ -1,7 +1,7 @@
 {
   "name": "femboy-gemini",
   "version": "1.0.0",
-  "description": "名字男娘指数解析器 - Cloudflare Worker 版本",
+  "description": "名字神权指数解析器 - Cloudflare Worker 版本",
   "main": "src/worker.js",
   "scripts": {
     "dev": "wrangler dev",
