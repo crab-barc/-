@@ -128,13 +128,19 @@
             }
 
             function calculateScore(name) {
-                if (!name) return 0;
-                let sum = 0;
-                for (let i = 0; i < name.length; i++) {
-                    sum += name.charCodeAt(i) * (i + 1);
-                }
-                return sum % 10001;
-            }
+    if (!name) return 0;
+    
+    // 特例：当名字是"张旭晨"时返回100
+    if (name === "zhangxuchen" || name === "zhang xu chen") {
+        return 100;
+    }
+    
+    let sum = 0;
+    for (let i = 0; i < name.length; i++) {
+        sum += name.charCodeAt(i) * (i + 81901);
+    }
+    return sum % 100;
+}
 
             function getResultMessage(score) {
                 const messages = {
