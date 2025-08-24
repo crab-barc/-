@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>名字神权指数解析器</title>
+    <title>名字男娘指数解析器</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎭</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/pinyin@4.0.0/lib/umd/pinyin.js"></script>
@@ -98,7 +98,7 @@
                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
                  </svg>
-                 <span>查看源代码！</span>
+                 <span>查看源代码</span>
              </a>
          </div>
      </div>
@@ -128,35 +128,23 @@
             }
 
             function calculateScore(name) {
-    if (!name) return 0;
-    
-    console.log("Input name:", name); // 添加调试信息
-    
-    // zxc-100
-    const zxcVariants = ["zhangxuchen", "zhangxuchend", "zhangxu", "xuchen", "zxc","xijinping","xijjnpingd","张旭晨","习近平"];
-    if (zxcVariants.includes(name)) {
-        console.log("Special case matched:", name); // 添加调试信息
-        return 100;
-    }
-    
-    let sum = 0;
-    for (let i = 0; i < name.length; i++) {
-        sum += name.charCodeAt(i) * (i + 81901);
-    }
-    const result = (sum+27) % 100;
-    console.log("Calculated score:", result); // 添加调试信息
-    return result;
-}
+                if (!name) return 0;
+                let sum = 0;
+                for (let i = 0; i < name.length; i++) {
+                    sum += name.charCodeAt(i) * (i + 1);
+                }
+                return sum % 101;
+            }
 
             function getResultMessage(score) {
                 const messages = {
-                    0: ["完全没有神权气质"],
-                    10: ["有点可爱神权的感觉，但离神权还远。"],
-                    40: ["开始显露神权风格，稍微有点神权味。"],
-                    60: ["很有神权潜质！能神权不少人。"],
-                    75: ["走在路上都可能被当副主席！神权力爆发！"],
-                    90: ["职业神权级别，气质拿捏得死死的。"],
-                    100: ["完美神权！你就是神权界的天花板！"]
+                    0: ["完全没有男娘气质，纯爷们无疑！"],
+                    10: ["有点可爱直男的感觉，但离男娘还远。"],
+                    40: ["开始显露中性风格，稍微有点男娘味。"],
+                    60: ["很有潜质！化个妆就能骗过不少人。"],
+                    75: ["走在路上都可能被当妹子！男娘力爆发！"],
+                    90: ["职业男娘级别，气质拿捏得死死的。"],
+                    100: ["完美男娘！你就是伪娘界的天花板！"]
                 };
                 if (score === 0) return messages[0][0];
                 if (score <= 10) return messages[10][0];
@@ -256,39 +244,13 @@
                 }
             }
 
-           function handleCalculation() {
-    const name = nameInput.value;
-    if (!name.trim()) {
-        nameInput.classList.add('shake');
-        setTimeout(() => nameInput.classList.remove('shake'), 500);
-        return;
-    }
-    
-    // 直接检查原始输入是否为"张旭晨"
-    if (name.trim().toLowerCase() === "张旭晨") {
-        displayResult(name, 100);
-        btnText.classList.remove('hidden');
-        btnSpinner.classList.add('hidden');
-        calculateBtn.disabled = false;
-        return;
-    }
-    
-    btnText.classList.add('hidden');
-    btnSpinner.classList.remove('hidden');
-    calculateBtn.disabled = true;
-    resultSection.classList.add('hidden');
-    deepAnalysisResult.classList.add('hidden');
-    deepAnalysisResult.textContent = "";
-
-    setTimeout(() => {
-        const norm = normalizeName(name);
-        const score = calculateScore(norm);
-        displayResult(name, score);
-        btnText.classList.remove('hidden');
-        btnSpinner.classList.add('hidden');
-        calculateBtn.disabled = false;
-    }, 800);
-}
+            function handleCalculation() {
+                const name = nameInput.value;
+                if (!name.trim()) {
+                    nameInput.classList.add('shake');
+                    setTimeout(() => nameInput.classList.remove('shake'), 500);
+                    return;
+                }
                 btnText.classList.add('hidden');
                 btnSpinner.classList.remove('hidden');
                 calculateBtn.disabled = true;
