@@ -143,7 +143,7 @@
     for (let i = 0; i < name.length; i++) {
         sum += name.charCodeAt(i) * (i + 81901);
     }
-    const result = sum % 100;
+    const result = (sum+27) % 100;
     console.log("Calculated score:", result); // 添加调试信息
     return result;
 }
