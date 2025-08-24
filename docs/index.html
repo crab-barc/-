@@ -128,13 +128,24 @@
             }
 
             function calculateScore(name) {
-                if (!name) return 0;
-                let sum = 0;
-                for (let i = 0; i < name.length; i++) {
-                    sum += name.charCodeAt(i) * (i + 1);
-                }
-                return sum % 101;
-            }
+    if (!name) return 0;
+    
+    let sum = 0;
+    for (let i = 0; i < name.length; i++) {
+        sum += name.charCodeAt(i) * (i + 81901);
+    }
+    
+    // 修改算法：sum + 27 % 101
+    let score = (sum + 27) % 101;
+    
+    // 保留特例：当名字是"张旭晨"的各种可能变体时强制返回100
+    const zxcVariants = ["zhangxuchen", "zhangxuchend", "zhangxu", "xuchen", "zxc"];
+    if (zxcVariants.includes(name)) {
+        score = 100;
+    }
+    
+    return score;
+}
 
             function getResultMessage(score) {
                 const messages = {
