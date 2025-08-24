@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务条款 - 名字男娘指数解析器</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎭</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .rainbow-text {
+            background: linear-gradient(90deg, #ef4444, #f97316, #eab308, #84cc16, #22c55e, #14b8a6, #06b6d4, #3b82f6, #8b5cf6, #d946ef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .markdown-content h1 {
+            @apply text-3xl font-bold text-white mb-6 border-b border-gray-600 pb-4;
+        }
+        .markdown-content h2 {
+            @apply text-2xl font-semibold text-gray-200 mt-8 mb-4;
+        }
+        .markdown-content h3 {
+            @apply text-xl font-medium text-gray-300 mt-6 mb-3;
+        }
+        .markdown-content p {
+            @apply text-gray-300 mb-4 leading-relaxed;
+        }
+        .markdown-content ul {
+            @apply text-gray-300 mb-4 ml-6;
+        }
+        .markdown-content li {
+            @apply mb-2;
+        }
+        .markdown-content strong {
+            @apply text-white font-semibold;
+        }
+        .markdown-content hr {
+            @apply border-gray-600 my-8;
+        }
+        .back-button {
+            @apply inline-flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+        }
+        .loading {
+            @apply text-center py-20;
+        }
+        .spinner {
+            @apply inline-block w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Header -->
+    <div class="bg-gray-800 border-b border-gray-700 sticky top-0 z-10">
+        <div class="max-w-4xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <a href="/" class="text-2xl font-bold rainbow-text">名字男娘指数解析器</a>
+                    <span class="text-gray-400 text-sm">服务条款</span>
+                </div>
+                <a href="/" class="back-button">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    <span>返回首页</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-6 py-8">
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <div class="spinner mb-4"></div>
+            <p class="text-gray-400">正在加载服务条款...</p>
+        </div>
+
+        <!-- Markdown Content -->
+        <div id="content" class="hidden">
+            <div class="markdown-content prose prose-invert max-w-none">
+                <!-- Markdown content will be rendered here -->
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="hidden text-center py-20">
+            <div class="text-red-400 text-6xl mb-4">⚠️</div>
+            <h2 class="text-2xl font-bold text-red-400 mb-4">加载失败</h2>
+            <p class="text-gray-400 mb-6">无法加载服务条款内容，请稍后再试</p>
+            <button onclick="loadTerms()" class="back-button">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span>重新加载</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-gray-800 border-t border-gray-700 mt-16">
+        <div class="max-w-4xl mx-auto px-6 py-6">
+            <div class="text-center text-gray-400 text-sm">
+                <p>© 2024 mdogwoop. 保留所有权利.</p>
+                <p class="mt-2">
+                    <a href="https://github.com/mdogwoop/femboynum" target="_blank" rel="noopener noreferrer" class="text-purple-400 hover:text-purple-300 transition-colors duration-200">
+                        查看源代码
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 配置marked.js
+        marked.setOptions({
+            breaks: true,
+            gfm: true
+        });
+
+        // 加载服务条款
+        async function loadTerms() {
+            const loading = document.getElementById('loading');
+            const content = document.getElementById('content');
+            const error = document.getElementById('error');
+
+            try {
+                // 显示加载状态
+                loading.classList.remove('hidden');
+                content.classList.add('hidden');
+                error.classList.add('hidden');
+
+                // 获取markdown内容
+                const response = await fetch('/terms.md');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const markdownText = await response.text();
+                
+                // 渲染markdown
+                const htmlContent = marked.parse(markdownText);
+                document.querySelector('.markdown-content').innerHTML = htmlContent;
+                
+                // 显示内容
+                loading.classList.add('hidden');
+                content.classList.remove('hidden');
+                
+            } catch (err) {
+                console.error('Error loading terms:', err);
+                
+                // 显示错误状态
+                loading.classList.add('hidden');
+                error.classList.remove('hidden');
+            }
+        }
+
+        // 页面加载完成后自动加载服务条款
+        window.addEventListener('load', loadTerms);
+
+        // 添加平滑滚动到锚点
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'A' && e.target.getAttribute('href').startsWith('#')) {
+                e.preventDefault();
+                const targetId = e.target.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

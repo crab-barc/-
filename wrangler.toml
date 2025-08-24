@@ -1,0 +1,47 @@
+# wrangler.toml
+# Cloudflare Worker 配置文件
+
+name = "femboy-gemini"
+main = "src/worker.js"
+compatibility_date = "2024-08-01"
+
+# 静态文件配置
+[assets]
+directory = "./public"
+
+# 环境变量配置
+[vars]
+# 在 Cloudflare Dashboard 或使用 wrangler secrets 设置 API 密钥
+# 不要在这里直接写入真实的API密钥
+GEMINI_API_KEY = "your_api_key_here"
+SILICONFLOW_API_KEY = "your_siliconflow_api_key_here"
+TURNSTILE_SECRET_KEY = "your_turnstile_secret_key_here"
+
+# 生产环境配置
+[env.production]
+name = "femboy-gemini-prod"
+[env.production.vars]
+GEMINI_API_KEY = "your_production_api_key_here"
+SILICONFLOW_API_KEY = "your_production_siliconflow_api_key_here"
+TURNSTILE_SECRET_KEY = "your_production_turnstile_secret_key_here"
+
+# 开发环境配置
+[env.development]
+name = "femboy-gemini-dev"
+[env.development.vars]
+GEMINI_API_KEY = "your_dev_api_key_here"
+SILICONFLOW_API_KEY = "your_dev_siliconflow_api_key_here"
+TURNSTILE_SECRET_KEY = "your_dev_turnstile_secret_key_here"
+
+# 日志配置
+[observability.logs]
+enabled = true
+
+# 资源限制配置
+#[limits]
+#cpu_ms = 50
+
+# 路由配置（可选）
+# [[routes]]
+# pattern = "your-domain.com/*"
+# zone_name = "your-domain.com"
