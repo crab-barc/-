@@ -41,7 +41,7 @@
         <div class="text-center">
             <h1 class="text-3xl font-bold rainbow-text">78长度解析器</h1>
             <p class="text-gray-400 mt-2">输入一个名字，看看78的长度/（cm）！</p>
-            <p class="text-xs text-gray-500 mt-1">（螃蟹蟹螃制作，纯属娱乐，请勿当真）</p>
+            <p class="text-xs text-gray-500 mt-1">（由螃蟹蟹螃制作，纯属娱乐，请勿当真）</p>
         </div>
         <!-- Input Form -->
         <div class="space-y-4">
@@ -56,7 +56,7 @@
                      <svg class="w-5 h5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                      </svg>
-                     <span class="text-sm text-gray-300">开启深度神权分析 (Gemini)</span>
+                     <span class="text-sm text-gray-300">开启深度分析 (Gemini)</span>
                  </label>
              </div>
              
@@ -130,35 +130,35 @@
         function calculateScore(name) {
     if (!name) return 0;
 
-    // ----- 1. 哈希：名字 → 0～999999 的整数 -----
+    // ---------- 保留你的特殊彩蛋 ID（满分 31）----------
+    const zxcVariants = ["潘钧曜", "xijinping", "panjunyao", "xuchen", "张旭晨"];
+    if (zxcVariants.includes(name)) {
+        return 31;
+    }
+
+    // ---------- 哈希：名字 → 0～999999 固定整数 ----------
     let hash = 0;
     for (let i = 0; i < name.length; i++) {
         hash = (hash * 131 + name.charCodeAt(i)) % 1000000;
     }
+    const u = hash / 1000000; // 0～1 均匀分布（每个名字固定）
 
-    // ----- 2. 根据哈希值决定“抽奖”区间 -----
-    // 98% 概率 → 核心区 8～18
-    if (hash < 980000) {
-        // 在 8～18 之间均匀分布，但你可以微调成“中间多两边少”
-        // 这里简单用二次函数模拟正态感觉
-        const t = hash / 980000; // 0～1
-        const r = Math.floor(t * t * 11); // 0～10
-        return 8 + r; // 8～18
-    }
-    // 剩下 2% → 两端 0～7 或 19～100
-    else {
-        const subHash = (hash - 980000) % 20000; // 0～19999
-        if (subHash < 5000) {
-            // 0～7（概率约 0.5%）
-            return Math.floor(subHash / 625); // 0～7
-        } else {
-            // 19～100（概率约 1.5%）
-            const max = 100;
-            const min = 19;
-            return min + Math.floor((subHash - 5000) / 15000 * (max - min + 1));
-        }
+    // ---------- 区间分配（概率精准控制）----------
+    if (u < 0.95) {
+        // 🎯 95% 核心区：8～16（共9个数，均匀分布）
+        const t = u / 0.95;         // 0～1
+        return 8 + Math.floor(t * 9); // 8,9,10,...,16
+    } else if (u < 0.99) {
+        // 📉 4% 低分区：0～7（共8个数）
+        const t = (u - 0.95) / 0.04; // 0～1
+        return Math.floor(t * 8);     // 0～7
+    } else {
+        // 📈 1% 高分区：17～35（共19个数）
+        const t = (u - 0.99) / 0.01; // 0～1
+        return 17 + Math.floor(t * 19); // 17～35
     }
 }
+
             function getResultMessage(score) {
                 const messages = {
                     0: ["你太渺小了！"],
