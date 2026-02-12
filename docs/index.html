@@ -156,19 +156,19 @@
                     24: ["朗基努斯之枪来了"],
                 };
                 if (score === 0) return messages[0][0];
-                if (score <= 10) return messages[10][0];
-                if (score <= 40) return messages[40][0];
-                if (score <= 60) return messages[60][0];
-                if (score <= 75) return messages[75][0];
+                if (score <= 8) return messages[8][0];
+                if (score <= 14) return messages[14][0];
+                if (score <= 18) return messages[18][0];
+                if (score <= 24) return messages[24][0];
                 if (score <= 90) return messages[90][0];
                 return messages[100][0];
             }
 
             function getProgressBarColor(percentage) {
-                if (percentage < 25) return '#3b82f6'; // blue
-                if (percentage < 50) return '#8b5cf6'; // purple
-                if (percentage < 75) return '#ec4899'; // pink
-                if (percentage < 90) return '#f59e0b'; // amber
+                if (percentage < 8) return '#3b82f6'; // blue
+                if (percentage < 14) return '#8b5cf6'; // purple
+                if (percentage < 18) return '#ec4899'; // pink
+                if (percentage < 24) return '#f59e0b'; // amber
                 return '#ef4444'; // red
             }
 
