@@ -41,7 +41,7 @@
         <div class="text-center">
             <h1 class="text-3xl font-bold rainbow-text">78长度解析器</h1>
             <p class="text-gray-400 mt-2">输入一个名字，看看78的长度/（cm）！</p>
-            <p class="text-xs text-gray-500 mt-1">（由螃蟹蟹螃制作，纯属娱乐，请勿当真）</p>
+            <p class="text-xs text-gray-500 mt-1">（螃蟹蟹螃制作，纯属娱乐，请勿当真）</p>
         </div>
         <!-- Input Form -->
         <div class="space-y-4">
@@ -127,7 +127,7 @@
                 return processed.replace(/[^a-z0-9]/g, '');
             }
 
-        function calculateScore(name) {
+  function calculateScore(name) {
     if (!name) return 0;
 
     // ---------- 保留你的特殊彩蛋 ID（满分 31）----------
@@ -136,26 +136,22 @@
         return 31;
     }
 
-    // ---------- 哈希：名字 → 0～999999 固定整数 ----------
-    let hash = 0;
+    // ---------- 1. 累加 Unicode 码点，得到固定整数 ----------
+    let sum = 0;
     for (let i = 0; i < name.length; i++) {
-        hash = (hash * 131 + name.charCodeAt(i)) % 1000000;
+        sum += name.charCodeAt(i);
     }
-    const u = hash / 1000000; // 0～1 均匀分布（每个名字固定）
 
-    // ---------- 区间分配（概率精准控制）----------
-    if (u < 0.95) {
-        // 🎯 95% 核心区：8～16（共9个数，均匀分布）
-        const t = u / 0.95;         // 0～1
-        return 8 + Math.floor(t * 9); // 8,9,10,...,16
-    } else if (u < 0.99) {
-        // 📉 4% 低分区：0～7（共8个数）
-        const t = (u - 0.95) / 0.04; // 0～1
-        return Math.floor(t * 8);     // 0～7
-    } else {
-        // 📈 1% 高分区：17～35（共19个数）
-        const t = (u - 0.99) / 0.01; // 0～1
-        return 17 + Math.floor(t * 19); // 17～35
+    // ---------- 2. 取模，映射到 0～999 ----------
+    const hash = sum % 1000;  // 0～999，均匀分布，每个名字固定
+
+    // ---------- 3. 分段映射到分数（完全符合你的要求）----------
+    if (hash < 950) {        // 95% 的人 → 8～16
+        return 8 + Math.floor(hash / 950 * 9); // 8,9,10,...,16
+    } else if (hash < 990) { // 4% 的人 → 0～7
+        return Math.floor((hash - 950) / 40 * 8); // 0～7
+    } else {                 // 1% 的人 → 17～35
+        return 17 + Math.floor((hash - 990) / 10 * 19); // 17～35
     }
 }
 
