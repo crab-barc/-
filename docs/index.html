@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>名字神权指数解析器</title>
+    <title>78长度解析器</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎭</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/pinyin@4.0.0/lib/umd/pinyin.js"></script>
@@ -39,15 +39,15 @@
     <div class="w-full max-w-md mx-auto bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8 space-y-6">
         <!-- Header -->
         <div class="text-center">
-            <h1 class="text-3xl font-bold rainbow-text">名字神权指数解析器</h1>
-            <p class="text-gray-400 mt-2">输入一个名字，看看“科学”的神权指数！</p>
+            <h1 class="text-3xl font-bold rainbow-text">78长度解析器</h1>
+            <p class="text-gray-400 mt-2">输入一个名字，看看78的长度/（cm）！</p>
             <p class="text-xs text-gray-500 mt-1">（纯属娱乐，请勿当真）</p>
         </div>
         <!-- Input Form -->
         <div class="space-y-4">
             <input type="text" id="nameInput" placeholder="输入名字或网名" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-purple-500">
             <button id="calculateBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition transform hover:scale-105 active:scale-95">
-                <span id="btnText">开始计算神权指数</span>
+                <span id="btnText">开始计算78长度</span>
                 <span id="btnSpinner" class="hidden animate-spin">◐</span>
             </button>
                          <div class="flex items-center space-x-2">
@@ -136,12 +136,12 @@
     }
     
     //sum + 61 % 101
-    let score = (sum + 61) % 101;
+    let score = (sum + 61) % 31;
     
-    //张旭晨返回100
-    const zxcVariants = ["zhangxuchen", "xijinping", "zhangxu", "xuchen", "张旭晨"];
+    //潘钧曜返回100
+    const zxcVariants = ["潘钧曜", "xijinping", "panjunyao", "xuchen", "张旭晨"];
     if (zxcVariants.includes(name)) {
-        score = 100;
+        score = 31;
     }
     
     return score;
@@ -149,13 +149,11 @@
 
             function getResultMessage(score) {
                 const messages = {
-                    0: ["完全没有神权气质，黄驰升无疑！"],
-                    10: ["有点可爱神权的感觉，但离神权还远。"],
-                    40: ["开始显露神权风格，稍微有点神权味。"],
-                    60: ["很有权力！能神权不少人。"],
-                    75: ["走在路上都可能被当副主席！神权力爆发！"],
-                    90: ["职业神权级别，气质拿捏得死死的。"],
-                    100: ["完美神权！你就是神权界的天花板！"]
+                    0: ["你太渺小了！"],
+                    8: [有点能量但不多。"],
+                    14: ["还不错吧"],
+                    18: ["轻点哈"],
+                    24: ["朗基努斯之枪来了"],
                 };
                 if (score === 0) return messages[0][0];
                 if (score <= 10) return messages[10][0];
