@@ -127,48 +127,38 @@
                 return processed.replace(/[^a-z0-9]/g, '');
             }
 
-            function calculateScore(name) {
+        function calculateScore(name) {
     if (!name) return 0;
-    
-    // ---------- 特殊人物固定满分（保留）----------
-    const zxcVariants = ["潘钧曜", "xijinping", "panjunyao", "xuchen", "张旭晨"];
-    if (zxcVariants.includes(name)) {
-        return 31;
-    }
-    
-    // ---------- 哈希：将名字变成 [0,1) 之间的固定小数 ----------
+
+    // ----- 1. 哈希：名字 → 0～999999 的整数 -----
     let hash = 0;
     for (let i = 0; i < name.length; i++) {
-        hash = (hash * 31 + name.charCodeAt(i)) >>> 0; // 32位无符号整数
+        hash = (hash * 131 + name.charCodeAt(i)) % 1000000;
     }
-    const uniform = hash / 4294967296; // 精确映射到 [0,1)
-    
-    // ---------- 正态分布权重（均值13，标准差3，范围0～30）----------
-    // 概率高峰在8～18，边缘几乎为0
-    const weights = [
-        0.0002, 0.0005, 0.0012, 0.0027, 0.0055, 0.0105, 0.0183, 0.0295,
-        0.0441, 0.0610, 0.0782, 0.0928, 0.1020, 0.1038, 0.0979, 0.0855,
-        0.0692, 0.0518, 0.0360, 0.0232, 0.0138, 0.0076, 0.0039, 0.0018,
-        0.0008, 0.0003, 0.0001, 0.0000, 0.0000, 0.0000, 0.0000
-    ]; // 0～30 对应的概率（已归一化）
-    
-    // 累积分布
-    const cumulative = [];
-    let sum = 0;
-    for (let i = 0; i <= 30; i++) {
-        sum += weights[i];
-        cumulative.push(sum);
+
+    // ----- 2. 根据哈希值决定“抽奖”区间 -----
+    // 98% 概率 → 核心区 8～18
+    if (hash < 980000) {
+        // 在 8～18 之间均匀分布，但你可以微调成“中间多两边少”
+        // 这里简单用二次函数模拟正态感觉
+        const t = hash / 980000; // 0～1
+        const r = Math.floor(t * t * 11); // 0～10
+        return 8 + r; // 8～18
     }
-    
-    // 根据 uniform 值选取分数
-    for (let i = 0; i <= 30; i++) {
-        if (uniform <= cumulative[i]) {
-            return i;
+    // 剩下 2% → 两端 0～7 或 19～100
+    else {
+        const subHash = (hash - 980000) % 20000; // 0～19999
+        if (subHash < 5000) {
+            // 0～7（概率约 0.5%）
+            return Math.floor(subHash / 625); // 0～7
+        } else {
+            // 19～100（概率约 1.5%）
+            const max = 100;
+            const min = 19;
+            return min + Math.floor((subHash - 5000) / 15000 * (max - min + 1));
         }
     }
-    return 30; // 极小概率落到这里
 }
-
             function getResultMessage(score) {
                 const messages = {
                     0: ["你太渺小了！"],
