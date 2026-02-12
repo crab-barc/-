@@ -188,59 +188,42 @@
                 return null;
             }
 
-            async function callGeminiAnalysis(name, score) {
-                try {
-                    const turnstileToken = getTurnstileToken();
-                    if (!turnstileContainer.classList.contains('hidden') && !turnstileToken) {
-                        return "🛡️ 请先完成人机验证";
-                    }
+            // ---------- 深度分析：直接调用DeepSeek！----------
+async function callDeepSeekAnalysis(name, score) {
+    const API_KEY = "sk-aa2a109d86c14016b1244dfc85333b82";   // ⚠️ 把你的密钥贴在这里
+    const url = "https://api.deepseek.com/v1/chat/completions";
 
-                    const response = await fetch("/api/analyze", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ name, score, turnstileToken })
-                    });
-                    
-                    if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({}));
-                        console.error('API Error:', errorData);
-                        
-                        let errorMessage = `深度分析失败：${errorData.message || '请稍后再试'}`;
-                        if (errorData.error === 'Configuration Error') {
-                            errorMessage += '\n\n🔧 解决方案：' + (errorData.solution || '请检查后端配置');
-                        }
-                        if (errorData.error === 'Location Error') {
-                            errorMessage = `🌍 ${errorData.solution || '该服务在您所在地区不可用'}`;
-                        }
-                        if (errorData.error === 'Turnstile Required' || errorData.error === 'Turnstile Invalid') {
-                            turnstileContainer.classList.remove('hidden');
-                            return `🛡️ ${errorData.message || '请完成人机验证'}`;
-                        }
-                        return errorMessage;
-                    }
-                    
-                    const data = await response.json();
-                    console.log('API Response Data:', data);
-                    
-                    if (data.success && data.analysis) {
-                        turnstileContainer.classList.add('hidden');
-                        let analysisText = data.analysis;
-                        if (data.metadata?.source === 'gemini') {
-                            analysisText = `🤖 Gemini AI 分析${data.metadata.model?.includes('lite') ? ' (降级版)' : ''}：\n\n${data.analysis}`;
-                        } else if (data.metadata?.source === 'backup') {
-                            analysisText = `🔄 备用AI 分析：\n\n${data.analysis}`;
-                        }
-                        return analysisText;
-                    } else {
-                        console.error('Invalid response format:', data);
-                        return '深度分析生成失败：响应格式错误';
-                    }
-                } catch (e) {
-                    console.error('Network Error:', e);
-                    return "网络错误，深度分析失败，请稍后再试。";
-                }
-            }
+    const prompt = `用户"${name}"的78长度得分是${score}分。请用幽默毒舌的风格点评一下这个长度，控制在30字以内。`;
 
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "deepseek-chat",
+                messages: [
+                    { role: "system", content: "你是毒舌段子手，专门点评78长度。" },
+                    { role: "user", content: prompt }
+                ],
+                temperature: 1.2,
+                max_tokens: 80
+            })
+        });
+
+        const data = await response.json();
+        if (data.choices && data.choices[0]) {
+            return "🤖 DeepSeek 锐评：\n" + data.choices[0].message.content;
+        } else {
+            return "深度分析暂时失灵，但你的长度我记住了。";
+        }
+    } catch (e) {
+        console.error(e);
+        return "网络开小差，段子下次补。";
+    }
+}
             // ---------- UI 交互 ----------
             function handleCalculation() {
                 const name = nameInput.value;
