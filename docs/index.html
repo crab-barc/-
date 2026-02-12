@@ -130,21 +130,44 @@
             function calculateScore(name) {
     if (!name) return 0;
     
-    let sum = 0;
-    for (let i = 0; i < name.length; i++) {
-        sum += name.charCodeAt(i) * (i + 81901);
-    }
-    
-    //sum + 61 % 101
-    let score = (sum + 61) % 31;
-    
-    //潘钧曜返回100
+    // ---------- 特殊人物固定满分（保留）----------
     const zxcVariants = ["潘钧曜", "xijinping", "panjunyao", "xuchen", "张旭晨"];
     if (zxcVariants.includes(name)) {
-        score = 31;
+        return 31;
     }
     
-    return score;
+    // ---------- 哈希：将名字变成 [0,1) 之间的固定小数 ----------
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = (hash * 31 + name.charCodeAt(i)) >>> 0; // 32位无符号整数
+    }
+    const uniform = hash / 4294967296; // 精确映射到 [0,1)
+    
+    // ---------- 正态分布权重（均值13，标准差3，范围0～30）----------
+    // 概率高峰在8～18，边缘几乎为0
+    const weights = [
+        0.0002, 0.0005, 0.0012, 0.0027, 0.0055, 0.0105, 0.0183, 0.0295,
+        0.0441, 0.0610, 0.0782, 0.0928, 0.1020, 0.1038, 0.0979, 0.0855,
+        0.0692, 0.0518, 0.0360, 0.0232, 0.0138, 0.0076, 0.0039, 0.0018,
+        0.0008, 0.0003, 0.0001, 0.0000, 0.0000, 0.0000, 0.0000
+    ]; // 0～30 对应的概率（已归一化）
+    
+    // 累积分布
+    const cumulative = [];
+    let sum = 0;
+    for (let i = 0; i <= 30; i++) {
+        sum += weights[i];
+        cumulative.push(sum);
+    }
+    
+    // 根据 uniform 值选取分数
+    for (let i = 0; i <= 30; i++) {
+        if (uniform <= cumulative[i]) {
+            return i;
+        }
+    }
+    return 30; // 极小概率落到这里
+}
 }
 
             function getResultMessage(score) {
