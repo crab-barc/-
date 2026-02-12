@@ -41,7 +41,7 @@
         <div class="text-center">
             <h1 class="text-3xl font-bold rainbow-text">78长度解析器</h1>
             <p class="text-gray-400 mt-2">输入一个名字，看看78的长度/（cm）！</p>
-            <p class="text-xs text-gray-500 mt-1">（螃蟹蟹螃制作，纯属娱乐，请勿当真）</p>
+            <p class="text-xs text-gray-500 mt-1">（由螃蟹蟹螃制作，纯属娱乐，请勿当真）</p>
         </div>
         <!-- Input Form -->
         <div class="space-y-4">
@@ -130,31 +130,19 @@
   function calculateScore(name) {
     if (!name) return 0;
 
-    // ---------- 保留你的特殊彩蛋 ID（满分 31）----------
+    // 彩蛋 ID：保持 31（进度条爆表效果）
     const zxcVariants = ["潘钧曜", "xijinping", "panjunyao", "xuchen", "张旭晨"];
     if (zxcVariants.includes(name)) {
         return 31;
     }
 
-    // ---------- 1. 累加 Unicode 码点，得到固定整数 ----------
+    // 你的算法：Unicode 累加，mod 31
     let sum = 0;
     for (let i = 0; i < name.length; i++) {
         sum += name.charCodeAt(i);
     }
-
-    // ---------- 2. 取模，映射到 0～999 ----------
-    const hash = sum % 1000;  // 0～999，均匀分布，每个名字固定
-
-    // ---------- 3. 分段映射到分数（完全符合你的要求）----------
-    if (hash < 950) {        // 95% 的人 → 8～16
-        return 8 + Math.floor(hash / 950 * 9); // 8,9,10,...,16
-    } else if (hash < 990) { // 4% 的人 → 0～7
-        return Math.floor((hash - 950) / 40 * 8); // 0～7
-    } else {                 // 1% 的人 → 17～35
-        return 17 + Math.floor((hash - 990) / 10 * 19); // 17～35
-    }
+    return sum % 31;  // 结果范围：0～30，均匀分布
 }
-
             function getResultMessage(score) {
                 const messages = {
                     0: ["你太渺小了！"],
