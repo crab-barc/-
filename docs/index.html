@@ -82,8 +82,8 @@
         <div id="resultSection" class="hidden pt-6 space-y-4 text-center">
             <h2 class="text-xl font-semibold text-gray-300">计算结果 for "<span id="resultName" class="font-bold text-purple-400"></span>"</h2>
             <div class="relative w-full h-8 bg-gray-700 rounded-full overflow-hidden border-2 border-gray-600">
-                <div id="progressBar" class="progress-bar-inner h-full rounded-full" style="width: 0; background-color:#3b82f6;"></div>
-                <span id="percentageText" class="absolute inset-0 flex items-center justify-center text-sm font-bold text-white opacity-0">0%</span>
+                <div id="progressBar" class="progress-bar-inner h-full rounded-full" style="width: 0%; background-color:#3b82f6;"></div>
+                <span id="percentageText" class="absolute inset-0 flex items-center justify-center text-sm font-bold text-white opacity-0">0</span>
             </div>
             <p id="resultMessage" class="text-lg font-medium text-gray-200 h-12 flex items-center justify-center"></p>
             <div id="deepAnalysisResult" class="hidden text-sm text-gray-300 pt-4 p-4 bg-gray-700 rounded-lg border border-gray-600"></div>
@@ -121,48 +121,55 @@
 
             // ---------- 工具函数 ----------
             function normalizeName(name) {
-    // 只去除首尾空格，保留原始字符（包括中文）
-    return name.trim();
-}
+                // 只去除首尾空格，保留原始字符（包括中文）
+                return name.trim();
+            }
+
             function calculateScore(name) {
-    if (!name) return 0;
+                if (!name) return 0;
 
-    // ----- 你的原始哈希（完全不动）-----
-    let sum = 0;
-    for (let i = 0; i < name.length; i++) {
-        sum += name.charCodeAt(i) * (i + 81901);
-    }
-    let raw = (sum + 61) % 31;  // 0～30 均匀分布，每个名字固定
+                // ----- 你的原始哈希（完全不动）-----
+                let sum = 0;
+                for (let i = 0; i < name.length; i++) {
+                    sum += name.charCodeAt(i) * (i + 81901);
+                }
+                let raw = (sum + 61) % 31;  // 0～30 均匀分布，每个名字固定
 
-    // ----- 彩蛋：特殊名字直接满分 -----
-    const specialNames = ["潘钧曜", "xijinping", "panjunyao", "xuchen", "张旭晨"];
-    if (specialNames.includes(name)) {
-        return 31;  // 进度条 31%，专属文案
-    }
+                // ----- 🎉 彩蛋：潘钧曜及朋友们直接 8848 分（珠穆朗玛峰）-----
+                const specialNames = ["潘钧曜", "xijinping", "panjunyao", "xuchen", "张旭晨"];
+                if (specialNames.includes(name)) {
+                    return 8848;  // 8848% 进度条，9178% 视觉效果
+                }
 
-    // ----- 映射表：把 0～30 的均匀分布“捏”成你想要的形状 -----
-    const scoreMap = [
-        // 低端（2 个）—— 概率 ≈ 6.5%
-        0, 3,
-        // 核心区 8～16（每个数字 3 次，共 27 个）—— 概率 ≈ 87%
-        8,8,8, 9,9,9, 10,10,10, 11,11,11, 12,12,12,
-        13,13,13, 14,14,14, 15,15,15, 16,16,16,
-        // 高端（2 个）—— 概率 ≈ 6.5%
-        25, 29
-    ];
-
-    return scoreMap[raw];  // raw 是 0～30，直接当索引
-}
+                // ----- 映射表：把 0～30 的均匀分布捏成 1～25，25 出现较少 -----
+                const scoreMap = [
+                    // 低端 1～7（共7个值，每个出现1次，概率≈22.6%）
+                    1,2,3,4,5,6,7,
+                    // 核心区 8～16（每个数字3次，共27个，概率≈87% 占总31个？等一下，总数需31个）
+                    // 我们总共需要31个映射值（raw:0～30）
+                    // 重新排布，让 8～16 占多数，17～24 少量，25 极少
+                    8,8,8, 9,9,9, 10,10,10, 11,11,11, 12,12,12,
+                    13,13,13, 14,14,14, 15,15,15, 16,16,16,
+                    // 中高端 17～24（每个1次，共8个）
+                    17,18,19,20,21,22,23,24,
+                    // 高端稀有 25（仅1次）
+                    25
+                ];
+                // 确保长度31
+                console.assert(scoreMap.length === 31, 'scoreMap must have 31 entries');
+                return scoreMap[raw];
+            }
 
             function getResultMessage(score) {
-    if (score === 31) return "满分！潘钧曜本曜";
-    if (score <= 0) return "你太渺小了！";
-    if (score <= 8) return "有点能量但不多。";
-    if (score <= 14) return "还不错吧";
-    if (score <= 18) return "轻点哈";
-    if (score <= 24) return "朗基努斯之枪来了";
-    return "接近神了";  // 25～30
-}
+                if (score === 8848) return "🏔️ 满分！潘钧曜本曜（珠穆朗玛峰）";
+                if (score <= 0) return "你太渺小了！";
+                if (score <= 8) return "有点能量但不多。";
+                if (score <= 14) return "还不错吧";
+                if (score <= 18) return "轻点哈";
+                if (score <= 24) return "朗基努斯之枪来了";
+                if (score === 25) return "🎯 78厘米！目标达成";
+                return "接近神了";  // 理论上不会执行，因为最大25
+            }
 
             function getProgressBarColor(percentage) {
                 if (percentage < 8) return '#3b82f6'; // blue
@@ -183,14 +190,11 @@
 
             async function callGeminiAnalysis(name, score) {
                 try {
-                    // 1. 检查 Turnstile 是否可用并获取令牌
                     const turnstileToken = getTurnstileToken();
-                    // 如果 Turnstile 容器是可见的，但用户尚未验证，返回提示
                     if (!turnstileContainer.classList.contains('hidden') && !turnstileToken) {
                         return "🛡️ 请先完成人机验证";
                     }
 
-                    // 2. 发起 API 请求（实际部署时需提供真实后端）
                     const response = await fetch("/api/analyze", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -266,18 +270,30 @@
                 resultName.textContent = name;
                 resultSection.classList.remove('hidden');
                 let current = 0;
+                
+                // ----- 根据分数确定进度条目标值 -----
+                let target;
+                if (score === 8848) {
+                    target = 9178;      // 彩蛋：9178%
+                } else if (score === 25) {
+                    target = 78;        // 25分 → 78% 进度条
+                } else {
+                    target = score;     // 其他分数直接显示数值
+                }
+
                 const interval = setInterval(() => {
-                    if (current <= score) {
-                        progressBar.style.width = current + '%';
-                        progressBar.style.backgroundColor = getProgressBarColor(current);
-                        percentageText.textContent = current;
-                        percentageText.style.opacity = 1;
-                    }
-                    if (current >= score) {
+                    // 进度条宽度最多 100%，但数字继续涨
+                    let widthPercent = Math.min(current, 100);
+                    progressBar.style.width = widthPercent + '%';
+                    progressBar.style.backgroundColor = getProgressBarColor(current);
+                    percentageText.textContent = current;
+                    percentageText.style.opacity = 1;
+
+                    if (current >= target) {
                         clearInterval(interval);
                         percentageText.classList.add('pop-in');
                         resultMessage.textContent = getResultMessage(score);
-                        // 深度分析处理
+                        
                         if (deepAnalysisCheckbox.checked) {
                             deepAnalysisResult.classList.remove('hidden');
                             deepAnalysisResult.textContent = "正在生成深度分析...";
@@ -302,34 +318,43 @@
             
             // 深度分析按钮的自定义交互
             function updateDeepAnalysisUI() {
+                if (!deepAnalysisLabel || !deepAnalysisCheckbox) return;
                 if (deepAnalysisCheckbox.checked) {
                     deepAnalysisLabel.classList.add('bg-purple-600', 'border-purple-500');
                     deepAnalysisLabel.classList.remove('bg-gray-700', 'border-gray-600');
-                    deepAnalysisLabel.querySelector('span').textContent = '关闭深度分析 (Gemini)';
-                    termsNotice.classList.remove('hidden');
+                    const span = deepAnalysisLabel.querySelector('span');
+                    if (span) span.textContent = '关闭深度分析 (Gemini)';
+                    if (termsNotice) termsNotice.classList.remove('hidden');
                 } else {
                     deepAnalysisLabel.classList.remove('bg-purple-600', 'border-purple-500');
                     deepAnalysisLabel.classList.add('bg-gray-700', 'border-gray-600');
-                    deepAnalysisLabel.querySelector('span').textContent = '开启深度分析 (Gemini)';
-                    termsNotice.classList.add('hidden');
-                    deepAnalysisResult.classList.add('hidden');
-                    deepAnalysisResult.textContent = "";
+                    const span = deepAnalysisLabel.querySelector('span');
+                    if (span) span.textContent = '开启深度分析 (Gemini)';
+                    if (termsNotice) termsNotice.classList.add('hidden');
+                    if (deepAnalysisResult) {
+                        deepAnalysisResult.classList.add('hidden');
+                        deepAnalysisResult.textContent = "";
+                    }
                 }
             }
 
-            deepAnalysisLabel.addEventListener('click', function(e) {
-                e.preventDefault();  // 阻止默认的 label 切换行为，手动切换
-                deepAnalysisCheckbox.checked = !deepAnalysisCheckbox.checked;
-                updateDeepAnalysisUI();
-            });
+            if (deepAnalysisLabel) {
+                deepAnalysisLabel.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (deepAnalysisCheckbox) {
+                        deepAnalysisCheckbox.checked = !deepAnalysisCheckbox.checked;
+                        updateDeepAnalysisUI();
+                    }
+                });
+            }
+            if (deepAnalysisCheckbox) {
+                deepAnalysisCheckbox.addEventListener('change', function() {
+                    updateDeepAnalysisUI();
+                });
+            }
 
             // 初始化深度分析按钮状态
             updateDeepAnalysisUI();
-
-            // 可选：如果用户直接点击复选框（极少数情况），同步UI
-            deepAnalysisCheckbox.addEventListener('change', function() {
-                updateDeepAnalysisUI();
-            });
         };
     </script>
 </body>
