@@ -134,35 +134,44 @@
             }
 
             function calculateScore(name) {
-                if (!name) return 0;
-                let sum = 0;
-                for (let i = 0; i < name.length; i++) {
-                    sum += name.charCodeAt(i) * (i + 81901);
-                }
-                let score = (sum + 61) % 31;
-                
-                // 特殊人物返回最高档位（24+）
-                const specialNames = ["潘钧曜", "xijinping", "panjunyao", "xuchen", "张旭晨"];
-                if (specialNames.includes(name)) {
-                    score = 30; // 映射到30，确保落在进度条最大值且消息有对应
-                }
-                return score;
-            }
+    if (!name) return 0;
+
+    // ----- 你的原始哈希（完全不动）-----
+    let sum = 0;
+    for (let i = 0; i < name.length; i++) {
+        sum += name.charCodeAt(i) * (i + 81901);
+    }
+    let raw = (sum + 61) % 31;  // 0～30 均匀分布，每个名字固定
+
+    // ----- 彩蛋：特殊名字直接满分 -----
+    const specialNames = ["潘钧曜", "xijinping", "panjunyao", "xuchen", "张旭晨"];
+    if (specialNames.includes(name)) {
+        return 31;  // 进度条 31%，专属文案
+    }
+
+    // ----- 映射表：把 0～30 的均匀分布“捏”成你想要的形状 -----
+    const scoreMap = [
+        // 低端（2 个）—— 概率 ≈ 6.5%
+        0, 3,
+        // 核心区 8～16（每个数字 3 次，共 27 个）—— 概率 ≈ 87%
+        8,8,8, 9,9,9, 10,10,10, 11,11,11, 12,12,12,
+        13,13,13, 14,14,14, 15,15,15, 16,16,16,
+        // 高端（2 个）—— 概率 ≈ 6.5%
+        25, 29
+    ];
+
+    return scoreMap[raw];  // raw 是 0～30，直接当索引
+}
 
             function getResultMessage(score) {
-                const messages = {
-                    0: ["你太渺小了！"],
-                    8: ["有点能量但不多。"],
-                    14: ["还不错吧"],
-                    18: ["轻点哈"],
-                    24: ["朗基努斯之枪来了"],
-                };
-                if (score <= 0) return messages[0][0];
-                if (score <= 8) return messages[8][0];
-                if (score <= 14) return messages[14][0];
-                if (score <= 18) return messages[18][0];
-                // 所有大于18的分数（包括特殊30）都归入24档
-                return messages[24][0];
+    if (score === 31) return "满分！潘钧曜本曜";
+    if (score <= 0) return "你太渺小了！";
+    if (score <= 8) return "有点能量但不多。";
+    if (score <= 14) return "还不错吧";
+    if (score <= 18) return "轻点哈";
+    if (score <= 24) return "朗基努斯之枪来了";
+    return "接近神了";  // 25～30
+}
             }
 
             function getProgressBarColor(percentage) {
