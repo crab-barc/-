@@ -161,13 +161,13 @@
             }
 
             function getResultMessage(score) {
-                if (score === 8848) return "🏔️ 满分！潘钧曜本曜（珠穆朗玛峰）";
+                if (score === 8848) return "请输入文本";
                 if (score <= 0) return "你太渺小了！";
                 if (score <= 8) return "有点能量但不多。";
-                if (score <= 14) return "还不错吧";
-                if (score <= 18) return "轻点哈";
-                if (score <= 24) return "朗基努斯之枪来了";
-                if (score === 25) return "🎯 78厘米！目标达成";
+                if (score <= 14) return "还可以吧";
+                if (score <= 18) return "有能量的";
+                if (score <= 24) return "能量巨大";
+                if (score === 25) return "朗基努斯之枪来了";
                 return "接近神了";  // 理论上不会执行，因为最大25
             }
 
@@ -306,13 +306,13 @@ async function callDeepSeekAnalysis(name, score) {
                     deepAnalysisLabel.classList.add('bg-purple-600', 'border-purple-500');
                     deepAnalysisLabel.classList.remove('bg-gray-700', 'border-gray-600');
                     const span = deepAnalysisLabel.querySelector('span');
-                    if (span) span.textContent = '关闭深度分析 (Gemini)';
+                    if (span) span.textContent = '关闭深度分析 (DeepSeek)';
                     if (termsNotice) termsNotice.classList.remove('hidden');
                 } else {
                     deepAnalysisLabel.classList.remove('bg-purple-600', 'border-purple-500');
                     deepAnalysisLabel.classList.add('bg-gray-700', 'border-gray-600');
                     const span = deepAnalysisLabel.querySelector('span');
-                    if (span) span.textContent = '开启深度分析 (Gemini)';
+                    if (span) span.textContent = '开启深度分析 (DeepSeek)';
                     if (termsNotice) termsNotice.classList.add('hidden');
                     if (deepAnalysisResult) {
                         deepAnalysisResult.classList.add('hidden');
